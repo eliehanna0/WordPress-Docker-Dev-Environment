@@ -1,0 +1,73 @@
+---
+version: '3.3'
+services:
+  db:
+    container_name: 'wordpress-db'
+    image: mariadb:10.5
+    volumes:
+      - './data/mysql:/var/lib/mysql'
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: wordpress
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress
+
+  wordpress:
+    container_name: 'wordpress'
+    depends_on:
+      - db
+    build:
+      context: .
+      dockerfile: WP.Dockerfile
+    restart: always
+    ports:
+      - '80:80'
+    environment:
+      WORDPRESS_DB_HOST: 'db:3306'
+      WORDPRESS_DB_USER: root
+      WORDPRESS_DB_PASSWORD: wordpress
+      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_TABLE_PREFIX: "wp_"
+      WORDPRESS_DEBUG: 1
+      WP_TESTS_DB_NAME: wordpress_tests
+      WP_PLUGIN_FOLDER: akismet
+
+    volumes:
+      - "./wordpress:/var/www/html"
+  wordpress-installer:
+    depends_on:
+      - db
+      - wordpress
+    build:
+      context: .
+      dockerfile: wpcli.Dockerfile
+    user: xfs
+    restart: on-failure
+    environment:
+      WORDPRESS_DB_HOST: 'db:3306'
+      WORDPRESS_DB_USER: root
+      WORDPRESS_DB_PASSWORD: wordpress
+      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_TABLE_PREFIX: "wp_"
+      WORDPRESS_DEBUG: 1
+      WP_SITE_TITLE: "WP Dev Site"
+      WP_SITE_USERNAME: "wordpress"
+      WP_SITE_PASSWORD: "wordpress"
+      WP_SITE_EMAIL: "email@email.com"
+    volumes:
+      - "./wordpress:/var/www/html"
+  phpmyadmin:
+    container_name: 'phpmyadmin'
+    links:
+      - db
+    image: phpmyadmin
+    restart: always
+    ports:
+      - 8080:80
+    environment:
+      PMA_ARBITRARY: 1
+      PMA_HOST: db
+      PMA_USER: root
+      PMA_PASSWORD: wordpress
+      PMA_PORT: 3306
