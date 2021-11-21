@@ -1,6 +1,12 @@
 # WordPress Docker Dev Environment
 This repository aims to help WordPress developers quickly bootstrap a WordPress Docker development environment with WP-CLI, PHPMyAdmin and Xdebug.
 
+## Container Features
+- Auto install WordPress
+- PHPMyAdmin
+- Xdebug
+- WP-CLI
+
 ## Prerequisites
 
 - Install [Docker Desktop](https://docs.docker.com/desktop/)
